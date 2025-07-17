@@ -1,0 +1,18 @@
+====== PAYMENT RECEIPT LOG ======
+System: Tuition Management
+Created: Wed Jul 16 17:23:35 MYT 2025
+
+----------------------------------
+Date: Wed Jul 16 17:24:16 MYT 2025
+Student: rgrvrv (TC007)
+Amount Paid: RM 450.00
+New Balance: RM 50.00
+Processed By: Admin
+----------------------------------
+----------------------------------
+Date: Thu Jul 17 10:36:43 MYT 2025
+Student: grrg (TC005)
+Amount Paid: RM 100.00
+New Balance: RM 0.00
+Processed By: Admin
+----------------------------------

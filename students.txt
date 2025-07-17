@@ -1,0 +1,5 @@
+moses;TC002;345;567;home;Form 1;Mathematics,English;270.0
+rvrvv;TC003;rvvrvrv4v;44f4;f44f4f4;Form 1;Mathematics,English;200.0
+grrg;TC005;vbtbbtb;tb4btb4;bt4bt;Form 1;Geography;0.0
+rgrvrv;TC007;vrevvv;evvr;rvrvr;Form 5;Additional Mathematics,Physics,English;50.0
+rgrge;TC008;eefegwg;eedvev;eegeg;Form 3;English,Science;180.0
