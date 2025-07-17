@@ -1,3 +1,0 @@
-C001,Mathematics,120.0,Mon 3-5pm,tutor1
-C002,Science,130.0,Tue 4-6pm,jane_smith
-C003,Science,500.0,Sat 3:15am-3:30pm,tutor1
