@@ -1,0 +1,472 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.ArrayList;
+
+class Tutor {
+    String name;
+    String subject;
+    int level;
+
+    Tutor(String name, String subject, int level) {
+        this.name = name;
+        this.subject = subject;
+        this.level = level;
+    }
+
+    @Override
+    public String toString() {
+        return name + "," + subject + "," + level;
+    }
+}
+
+class Receptionist {
+    String id;
+    String password;
+
+    Receptionist(String id, String password) {
+        this.id = id;
+        this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return id + "," + password;
+    }
+}
+
+public class TuitionManagementSystem extends JFrame {
+    private ArrayList<Tutor> tutors = new ArrayList<>();
+    private ArrayList<Receptionist> receptionists = new ArrayList<>();
+    private JTextField tutorNameField, subjectField, levelField, receptionistIdField, receptionistPasswordField;
+    private JTextArea reportArea;
+
+    public TuitionManagementSystem() {
+        setTitle("Tuition Management System");
+        setSize(600, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Create panels for different functionalities
+        JPanel tutorPanel = createTutorPanel();
+        JPanel receptionistPanel = createReceptionistPanel();
+        JPanel reportPanel = createReportPanel();
+
+        // Add panels to the frame
+        add(tutorPanel, BorderLayout.NORTH);
+        add(receptionistPanel, BorderLayout.CENTER);
+        add(reportPanel, BorderLayout.SOUTH);
+
+        loadData(); // Load data from files on startup
+    }
+
+    private JPanel createTutorPanel() {
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createTitledBorder("Tutor Management"));
+        panel.setLayout(new GridLayout(4, 2));
+
+        tutorNameField = new JTextField();
+        subjectField = new JTextField();
+        levelField = new JTextField();
+
+        JButton registerTutorButton = new JButton("Register Tutor");
+        registerTutorButton.addActionListener(e -> registerTutor());
+
+        JButton deleteTutorButton = new JButton("Delete Tutor");
+        deleteTutorButton.addActionListener(e -> deleteTutor());
+
+        panel.add(new JLabel("Tutor Name:"));
+        panel.add(tutorNameField);
+        panel.add(new JLabel("Subject:"));
+        panel.add(subjectField);
+        panel.add(new JLabel("Level (1-5):"));
+        panel.add(levelField);
+        panel.add(registerTutorButton);
+        panel.add(deleteTutorButton);
+
+        return panel;
+    }
+
+    private JPanel createReceptionistPanel() {
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createTitledBorder("Receptionist Management"));
+        panel.setLayout(new GridLayout(3, 2));
+
+        receptionistIdField = new JTextField();
+        receptionistPasswordField = new JTextField();
+
+        JButton registerReceptionistButton = new JButton("Register Receptionist");
+        registerReceptionistButton.addActionListener(e -> registerReceptionist());
+
+        JButton updateProfileButton = new JButton("Update Profile");
+        updateProfileButton.addActionListener(e -> updateProfile());
+
+        panel.add(new JLabel("Receptionist ID:"));
+        panel.add(receptionistIdField);
+        panel.add(new JLabel("Password:"));
+        panel.add(receptionistPasswordField);
+        panel.add(registerReceptionistButton);
+        panel.add(updateProfileButton);
+
+        return panel;
+    }
+
+    private JPanel createReportPanel() {
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createTitledBorder("Monthly Income Report"));
+        reportArea = new JTextArea(5, 40);
+        reportArea.setEditable(false);
+        JButton viewReportButton = new JButton("View Report");
+        viewReportButton.addActionListener(e -> viewReport());
+
+        panel.add(new JScrollPane(reportArea));
+        panel.add(viewReportButton);
+
+        return panel;
+    }
+
+    private void registerTutor() {
+        String name = tutorNameField.getText();
+        String subject = subjectField.getText();
+        int level = Integer.parseInt(levelField.getText());
+        tutors.add(new Tutor(name, subject, level));
+        saveTutors(); // Save tutors to file
+        JOptionPane.showMessageDialog(this, "Tutor Registered!");
+    }
+
+    private void deleteTutor() {
+        String name = tutorNameField.getText();
+        tutors.removeIf(tutor -> tutor.name.equals(name));
+        saveTutors(); // Save updated tutors to file
+        JOptionPane.showMessageDialog(this, "Tutor Deleted!");
+    }
+
+    private void registerReceptionist() {
+        String id = receptionistIdField.getText();
+        String password = receptionistPasswordField.getText();
+        receptionists.add(new Receptionist(id, password));
+        saveReceptionists(); // Save receptionists to file
+        JOptionPane.showMessageDialog(this, "Receptionist Registered!");
+    }
+
+    private void updateProfile() {
+        String id = receptionistIdField.getText();
+        String newPassword = receptionistPasswordField.getText();
+        for (Receptionist receptionist : receptionists) {
+            if (receptionist.id.equals(id)) {
+                receptionist.password = newPassword;
+                saveReceptionists(); // Save updated receptionists to file
+                JOptionPane.showMessageDialog(this, "Profile Updated!");
+                return;
+            }
+        }
+        JOptionPane.showMessageDialog(this, "Receptionist Not Found!");
+    }
+
+    private void viewReport() {
+        reportArea.setText("Monthly Income Report:\n");
+        // Here you would calculate and display the income report based on tutors and subjects
+        // For simplicity, we will just show the number of tutors
+        reportArea.append("Total Tutors: " + tutors.size() + "\n");
+    }
+
+    private void loadData() {
+        loadTutors();
+        loadReceptionists();
+    }
+
+    private void loadTutors() {
+        try (BufferedReader br = new BufferedReader(new FileReader("tutors.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                String name = parts[0];
+                String subject = parts[1];
+                int level = Integer.parseInt(parts[2]);
+                tutors.add(new Tutor(name, subject, level));
+            }
+        } catch (IOException e) {
+            System.out.println("No existing tutor data found.");
+        }
+    }
+
+    private void loadReceptionists() {
+        try (BufferedReader br = new BufferedReader(new FileReader("receptionists.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                String id = parts[0];
+                String password = parts[1];
+                receptionists.add(new Receptionist(id, password));
+            }
+        } catch (IOException e) {
+            System.out.println("No existing receptionist data found.");
+        }
+    }
+
+    private void saveTutors() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("tutors.txt"))) {
+            for (Tutor tutor : tutors) {
+                bw.write(tutor.toString());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveReceptionists() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("receptionists.txt"))) {
+            for (Receptionist receptionist : receptionists) {
+                bw.write(receptionist.toString());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            TuitionManagementSystem frame = new TuitionManagementSystem();
+            frame.setVisible(true);
+        });
+    }
+}
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.ArrayList;
+
+class Tutor {
+    String name;
+    String subject;
+    int level;
+
+    Tutor(String name, String subject, int level) {
+        this.name = name;
+        this.subject = subject;
+        this.level = level;
+    }
+
+    @Override
+    public String toString() {
+        return name + "," + subject + "," + level;
+    }
+}
+
+class Receptionist {
+    String id;
+    String password;
+
+    Receptionist(String id, String password) {
+        this.id = id;
+        this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return id + "," + password;
+    }
+}
+
+public class TuitionManagementSystem extends JFrame {
+    private ArrayList<Tutor> tutors = new ArrayList<>();
+    private ArrayList<Receptionist> receptionists = new ArrayList<>();
+    private JTextField tutorNameField, subjectField, levelField, receptionistIdField, receptionistPasswordField;
+    private JTextArea reportArea;
+
+    public TuitionManagementSystem() {
+        setTitle("Tuition Management System");
+        setSize(600, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Create panels for different functionalities
+        JPanel tutorPanel = createTutorPanel();
+        JPanel receptionistPanel = createReceptionistPanel();
+        JPanel reportPanel = createReportPanel();
+
+        // Add panels to the frame
+        add(tutorPanel, BorderLayout.NORTH);
+        add(receptionistPanel, BorderLayout.CENTER);
+        add(reportPanel, BorderLayout.SOUTH);
+
+        loadData(); // Load data from files on startup
+    }
+
+    private JPanel createTutorPanel() {
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createTitledBorder("Tutor Management"));
+        panel.setLayout(new GridLayout(4, 2));
+
+        tutorNameField = new JTextField();
+        subjectField = new JTextField();
+        levelField = new JTextField();
+
+        JButton registerTutorButton = new JButton("Register Tutor");
+        registerTutorButton.addActionListener(e -> registerTutor());
+
+        JButton deleteTutorButton = new JButton("Delete Tutor");
+        deleteTutorButton.addActionListener(e -> deleteTutor());
+
+        panel.add(new JLabel("Tutor Name:"));
+        panel.add(tutorNameField);
+        panel.add(new JLabel("Subject:"));
+        panel.add(subjectField);
+        panel.add(new JLabel("Level (1-5):"));
+        panel.add(levelField);
+        panel.add(registerTutorButton);
+        panel.add(deleteTutorButton);
+
+        return panel;
+    }
+
+    private JPanel createReceptionistPanel() {
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createTitledBorder("Receptionist Management"));
+        panel.setLayout(new GridLayout(3, 2));
+
+        receptionistIdField = new JTextField();
+        receptionistPasswordField = new JTextField();
+
+        JButton registerReceptionistButton = new JButton("Register Receptionist");
+        registerReceptionistButton.addActionListener(e -> registerReceptionist());
+
+        JButton updateProfileButton = new JButton("Update Profile");
+        updateProfileButton.addActionListener(e -> updateProfile());
+
+        panel.add(new JLabel("Receptionist ID:"));
+        panel.add(receptionistIdField);
+        panel.add(new JLabel("Password:"));
+        panel.add(receptionistPasswordField);
+        panel.add(registerReceptionistButton);
+        panel.add(updateProfileButton);
+
+        return panel;
+    }
+
+    private JPanel createReportPanel() {
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createTitledBorder("Monthly Income Report"));
+        reportArea = new JTextArea(5, 40);
+        reportArea.setEditable(false);
+        JButton viewReportButton = new JButton("View Report");
+        viewReportButton.addActionListener(e -> viewReport());
+
+        panel.add(new JScrollPane(reportArea));
+        panel.add(viewReportButton);
+
+        return panel;
+    }
+
+    private void registerTutor() {
+        String name = tutorNameField.getText();
+        String subject = subjectField.getText();
+        int level = Integer.parseInt(levelField.getText());
+        tutors.add(new Tutor(name, subject, level));
+        saveTutors(); // Save tutors to file
+        JOptionPane.showMessageDialog(this, "Tutor Registered!");
+    }
+
+    private void deleteTutor() {
+        String name = tutorNameField.getText();
+        tutors.removeIf(tutor -> tutor.name.equals(name));
+        saveTutors(); // Save updated tutors to file
+        JOptionPane.showMessageDialog(this, "Tutor Deleted!");
+    }
+
+    private void registerReceptionist() {
+        String id = receptionistIdField.getText();
+        String password = receptionistPasswordField.getText();
+        receptionists.add(new Receptionist(id, password));
+        saveReceptionists(); // Save receptionists to file
+        JOptionPane.showMessageDialog(this, "Receptionist Registered!");
+    }
+
+    private void updateProfile() {
+        String id = receptionistIdField.getText();
+        String newPassword = receptionistPasswordField.getText();
+        for (Receptionist receptionist : receptionists) {
+            if (receptionist.id.equals(id)) {
+                receptionist.password = newPassword;
+                saveReceptionists(); // Save updated receptionists to file
+                JOptionPane.showMessageDialog(this, "Profile Updated!");
+                return;
+            }
+        }
+        JOptionPane.showMessageDialog(this, "Receptionist Not Found!");
+    }
+
+    private void viewReport() {
+        reportArea.setText("Monthly Income Report:\n");
+        // Here you would calculate and display the income report based on tutors and subjects
+        // For simplicity, we will just show the number of tutors
+        reportArea.append("Total Tutors: " + tutors.size() + "\n");
+    }
+
+    private void loadData() {
+        loadTutors();
+        loadReceptionists();
+    }
+
+    private void loadTutors() {
+        try (BufferedReader br = new BufferedReader(new FileReader("tutors.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                String name = parts[0];
+                String subject = parts[1];
+                int level = Integer.parseInt(parts[2]);
+                tutors.add(new Tutor(name, subject, level));
+            }
+        } catch (IOException e) {
+            System.out.println("No existing tutor data found.");
+        }
+    }
+
+    private void loadReceptionists() {
+        try (BufferedReader br = new BufferedReader(new FileReader("receptionists.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                String id = parts[0];
+                String password = parts[1];
+                receptionists.add(new Receptionist(id, password));
+            }
+        } catch (IOException e) {
+            System.out.println("No existing receptionist data found.");
+        }
+    }
+
+    private void saveTutors() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("tutors.txt"))) {
+            for (Tutor tutor : tutors) {
+                bw.write(tutor.toString());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveReceptionists() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("receptionists.txt"))) {
+            for (Receptionist receptionist : receptionists) {
+                bw.write(receptionist.toString());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            TuitionManagementSystem frame = new TuitionManagementSystem();
+            frame.setVisible(true);
+        });
+    }
+}
