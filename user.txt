@@ -1,0 +1,6 @@
+String[][] users = {
+    {"student1", "student123", "student"},
+    {"tutor1", "tutor123", "tutor"},
+    {"reception1", "reception123", "receptionist"},
+    {"admin1", "admin123", "admin"}
+};

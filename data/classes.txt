@@ -1,0 +1,3 @@
+C001;math;120.0;Mon 9:00am-10:00am;tutor1
+C002;science;150.0;Wed 7:00am-8:00am;tutor1
+C004;malay;160.0;Fri 8:00am-10:00am;tutor1
