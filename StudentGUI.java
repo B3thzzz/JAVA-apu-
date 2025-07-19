@@ -1,525 +1,270 @@
-package com.example.javaproject;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
-import javafx.application.Application;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.stage.Stage;
+class StudentGUI extends JFrame {
+    private JPanel mainPanel;
+    private JLabel welcomeLabel;
 
-import java.util.Objects;
-import java.util.Random;
+    public StudentGUI() {
+        setTitle("Student Dashboard - Tuition Management System");
+        setSize(900, 650);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
 
-public class StudentGUI extends Application {
+        // Main panel setup
+        mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-    // Main Student Class
-    public static class Student {
-        private final StringProperty name = new SimpleStringProperty();
-        private final StringProperty id = new SimpleStringProperty();
-        private final StringProperty major = new SimpleStringProperty();
-        private final ObservableList<Course> courses = FXCollections.observableArrayList();
+        // Header panel
+        JPanel headerPanel = createHeaderPanel();
 
-        public Student(String name, String id, String major) {
-            this.name.set(name);
-            this.id.set(id);
-            this.major.set(major);
+        // Navigation panel
+        JPanel navPanel = createNavigationPanel();
 
-            // Sample courses
-            courses.add(new Course("CS101", "Introduction to Programming"));
-            courses.add(new Course("MATH201", "Calculus II"));
-            courses.add(new Course("ENG102", "Academic Writing"));
-            courses.add(new Course("PHY101", "General Physics I"));
+        // Content panel (initial view)
+        JPanel contentPanel = createInitialContentPanel();
+
+        // Add components to main panel
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(navPanel, BorderLayout.WEST);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
+
+        add(mainPanel);
+    }
+
+    private JPanel createHeaderPanel() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(70, 130, 180));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        JLabel titleLabel = new JLabel("STUDENT DASHBOARD", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setForeground(Color.WHITE);
+
+        welcomeLabel = new JLabel("Welcome, Student", SwingConstants.RIGHT);
+        welcomeLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        welcomeLabel.setForeground(Color.WHITE);
+
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
+        headerPanel.add(welcomeLabel, BorderLayout.EAST);
+
+        return headerPanel;
+    }
+
+    private JPanel createNavigationPanel() {
+        JPanel navPanel = new JPanel(new GridLayout(6, 1, 10, 10));
+        navPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+        navPanel.setBackground(new Color(240, 240, 240));
+
+        String[] buttons = {
+                "View Profile",
+                "View Courses",
+                "View Grades",
+                "View Schedule",
+                "Make Payment",
+                "Logout"
+        };
+
+        for (String text : buttons) {
+            JButton btn = new JButton(text);
+            btn.setPreferredSize(new Dimension(180, 40));
+            btn.setFont(new Font("Arial", Font.PLAIN, 14));
+            btn.addActionListener(new ButtonListener());
+            navPanel.add(btn);
         }
 
-        // Property getters
-        public StringProperty nameProperty() { return name; }
-        public StringProperty idProperty() { return id; }
-        public StringProperty majorProperty() { return major; }
-        public ObservableList<Course> getCourses() { return courses; }
-
-        public String getName() { return name.get(); }
-        public String getId() { return id.get(); }
-        public String getMajor() { return major.get(); }
+        return navPanel;
     }
 
-    // Course Class
-    public static class Course {
-        private final StringProperty code = new SimpleStringProperty();
-        private final StringProperty name = new SimpleStringProperty();
+    private JPanel createInitialContentPanel() {
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.add(createProfilePanel(), BorderLayout.CENTER);
+        return contentPanel;
+    }
 
-        public Course(String code, String name) {
-            this.code.set(code);
-            this.name.set(name);
+    private JPanel createProfilePanel() {
+        JPanel profilePanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        profilePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        String[] labels = {"Student ID:", "Full Name:", "Email:", "Phone:", "Program:", "Enrollment Date:"};
+        String[] values = {
+                "S10001",
+                "John Doe",
+                "john.doe@university.edu",
+                "(123) 456-7890",
+                "Computer Science",
+                "September 2023"
+        };
+
+        for (int i = 0; i < labels.length; i++) {
+            JLabel label = new JLabel(labels[i]);
+            label.setFont(new Font("Arial", Font.BOLD, 14));
+            profilePanel.add(label);
+
+            JLabel value = new JLabel(values[i]);
+            value.setFont(new Font("Arial", Font.PLAIN, 14));
+            profilePanel.add(value);
         }
 
-        public StringProperty codeProperty() { return code; }
-        public StringProperty nameProperty() { return name; }
-
-        public String getCode() { return code.get(); }
-        public String getName() { return name.get(); }
-
-        @Override
-        public String toString() {
-            return code.get() + " - " + name.get();
-        }
+        return profilePanel;
     }
 
-    // New Class for Enrollment Request
-    public static class EnrollmentRequest {
-        private final StringProperty courseToDrop = new SimpleStringProperty();
-        private final StringProperty courseToAdd = new SimpleStringProperty();
-        private final StringProperty status = new SimpleStringProperty("Pending");
+    private class ButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+            JPanel contentPanel = (JPanel) mainPanel.getComponent(2);
+            contentPanel.removeAll();
 
-        public EnrollmentRequest(String courseToDrop, String courseToAdd) {
-            this.courseToDrop.set(courseToDrop);
-            this.courseToAdd.set(courseToAdd);
-        }
+            switch (command) {
+                case "View Profile":
+                    contentPanel.add(createProfilePanel(), BorderLayout.CENTER);
+                    break;
 
-        public StringProperty courseToDropProperty() { return courseToDrop; }
-        public StringProperty courseToAddProperty() { return courseToAdd; }
-        public StringProperty statusProperty() { return status; }
-    }
+                case "View Courses":
+                    JPanel coursesPanel = new JPanel(new BorderLayout());
 
-    // New Class for Payment
-    public static class Payment {
-        private final StringProperty description = new SimpleStringProperty();
-        private final StringProperty amount = new SimpleStringProperty();
-        private final StringProperty status = new SimpleStringProperty();
+                    String[] columns = {"Course Code", "Course Name", "Instructor", "Schedule", "Room"};
+                    Object[][] data = {
+                            {"CS101", "Introduction to Programming", "Dr. Smith", "Mon/Wed 10-11:30", "Building A-201"},
+                            {"MATH202", "Calculus II", "Prof. Johnson", "Tue/Thu 1-2:30", "Building B-105"},
+                            {"ENG105", "Academic Writing", "Dr. Williams", "Fri 9-12", "Building C-302"}
+                    };
 
-        public Payment(String description, double amount, String status) {
-            this.description.set(description);
-            this.amount.set(String.format("$%.2f", amount));
-            this.status.set(status);
-        }
+                    JTable coursesTable = new JTable(data, columns);
+                    coursesTable.setFont(new Font("Arial", Font.PLAIN, 14));
+                    coursesTable.setRowHeight(25);
+                    coursesTable.setEnabled(false);
 
-        public StringProperty descriptionProperty() { return description; }
-        public StringProperty amountProperty() { return amount; }
-        public StringProperty statusProperty() { return status; }
-    }
+                    coursesPanel.add(new JScrollPane(coursesTable), BorderLayout.CENTER);
+                    contentPanel.add(coursesPanel, BorderLayout.CENTER);
+                    break;
 
-    private Student currentStudent;
-    private final ObservableList<EnrollmentRequest> pendingRequests = FXCollections.observableArrayList();
-    private final ObservableList<Payment> paymentHistory = FXCollections.observableArrayList();
+                case "View Grades":
+                    JPanel gradesPanel = new JPanel(new BorderLayout());
 
-    @Override
-    public void start(Stage primaryStage) {
-        currentStudent = new Student("Alex Johnson", "S1001", "Computer Science");
+                    String[] gradeColumns = {"Course", "Assignment", "Grade", "Comments"};
+                    Object[][] gradeData = {
+                            {"CS101", "Project 1", "A", "Excellent work"},
+                            {"CS101", "Midterm", "B+", "Good understanding"},
+                            {"MATH202", "Quiz 1", "A-", "Minor calculation errors"},
+                            {"ENG105", "Essay 1", "A", "Well researched"}
+                    };
 
-        // Add sample payment history
-        paymentHistory.add(new Payment("Tuition Fee - Fall 2023", 5000.00, "Paid"));
-        paymentHistory.add(new Payment("Lab Fee - Fall 2023", 50.00, "Paid"));
-        paymentHistory.add(new Payment("Late Registration Fee", 25.00, "Unpaid"));
+                    JTable gradesTable = new JTable(gradeData, gradeColumns);
+                    gradesTable.setFont(new Font("Arial", Font.PLAIN, 14));
+                    gradesTable.setRowHeight(25);
+                    gradesTable.setEnabled(false);
 
-        BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #f5f7fa;");
+                    // Add GPA summary
+                    JPanel summaryPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                    JLabel gpaLabel = new JLabel("Current GPA: 3.75");
+                    gpaLabel.setFont(new Font("Arial", Font.BOLD, 16));
+                    summaryPanel.add(gpaLabel);
 
-        // Header
-        HBox header = new HBox(15);
-        header.setPadding(new Insets(15));
-        header.setStyle("-fx-background-color: #3498db;");
-        header.setAlignment(Pos.CENTER_LEFT);
+                    gradesPanel.add(new JScrollPane(gradesTable), BorderLayout.CENTER);
+                    gradesPanel.add(summaryPanel, BorderLayout.SOUTH);
+                    contentPanel.add(gradesPanel, BorderLayout.CENTER);
+                    break;
 
-        Label title = new Label("Student Portal");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
-        title.setTextFill(Color.WHITE);
+                case "View Schedule":
+                    JPanel schedulePanel = new JPanel(new BorderLayout());
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+                    String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+                    String[][] scheduleData = {
+                            {"CS101\n10:00-11:30\nBuilding A-201", "MATH202\n13:00-14:30\nBuilding B-105", "", "CS101 Lab\n14:00-16:00\nLab 3", "ENG105\n09:00-12:00\nBuilding C-302"},
+                            {"Office Hours\n15:00-17:00", "Study Group\n16:00-18:00", "Club Meeting\n12:00-13:00", "", "Library Time\n13:00-15:00"}
+                    };
 
-        Label studentName = new Label(currentStudent.getName());
-        studentName.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        studentName.setTextFill(Color.WHITE);
+                    JTable scheduleTable = new JTable(scheduleData, days);
+                    scheduleTable.setFont(new Font("Arial", Font.PLAIN, 14));
+                    scheduleTable.setRowHeight(80);
+                    scheduleTable.setEnabled(false);
 
-        header.getChildren().addAll(title, spacer, studentName);
-        root.setTop(header);
+                    schedulePanel.add(new JScrollPane(scheduleTable), BorderLayout.CENTER);
+                    contentPanel.add(schedulePanel, BorderLayout.CENTER);
+                    break;
 
-        // Content Area
-        TabPane mainTabs = new TabPane();
+                case "Make Payment":
+                    JPanel paymentPanel = new JPanel(new GridBagLayout());
+                    paymentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+                    GridBagConstraints gbc = new GridBagConstraints();
+                    gbc.insets = new Insets(10, 10, 10, 10);
+                    gbc.anchor = GridBagConstraints.WEST;
 
-        // Pass the TabPane to the createDashboard method so buttons can switch tabs
-        Tab dashboardTab = new Tab("Dashboard", createDashboard(mainTabs));
-        dashboardTab.setClosable(false);
+                    // Payment information
+                    JLabel dueLabel = new JLabel("Amount Due:");
+                    dueLabel.setFont(new Font("Arial", Font.BOLD, 14));
+                    JLabel amountDue = new JLabel("$1,200.00");
+                    amountDue.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        Tab scheduleTab = new Tab("Schedule", createScheduleView());
-        scheduleTab.setClosable(false);
+                    JLabel methodLabel = new JLabel("Payment Method:");
+                    methodLabel.setFont(new Font("Arial", Font.BOLD, 14));
+                    JComboBox<String> methods = new JComboBox<>(new String[]{"Credit Card", "Debit Card", "Bank Transfer", "Scholarship"});
+                    methods.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        Tab gradesTab = new Tab("Grades", createGradesView());
-        gradesTab.setClosable(false);
+                    JLabel amountLabel = new JLabel("Amount to Pay:");
+                    amountLabel.setFont(new Font("Arial", Font.BOLD, 14));
+                    JTextField amountField = new JTextField(15);
+                    amountField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        Tab enrollmentTab = new Tab("Enrollment", createEnrollmentView());
-        enrollmentTab.setClosable(false);
+                    JButton submitButton = new JButton("Submit Payment");
+                    submitButton.setFont(new Font("Arial", Font.BOLD, 14));
+                    submitButton.addActionListener(ev -> {
+                        if (amountField.getText().isEmpty()) {
+                            JOptionPane.showMessageDialog(StudentGUI.this,
+                                    "Please enter an amount",
+                                    "Payment Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(StudentGUI.this,
+                                    "Payment of $" + amountField.getText() + " submitted successfully!",
+                                    "Payment Confirmation",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        }
+                    });
 
-        Tab paymentsTab = new Tab("Payments", createPaymentsView());
-        paymentsTab.setClosable(false);
+                    // Layout
+                    gbc.gridx = 0; gbc.gridy = 0;
+                    paymentPanel.add(dueLabel, gbc);
 
-        mainTabs.getTabs().addAll(dashboardTab, scheduleTab, gradesTab, enrollmentTab, paymentsTab);
-        root.setCenter(mainTabs);
+                    gbc.gridx = 1;
+                    paymentPanel.add(amountDue, gbc);
 
-        primaryStage.setScene(new Scene(root, 900, 600));
-        primaryStage.setTitle("Student Portal - " + currentStudent.getName());
-        primaryStage.show();
-    }
+                    gbc.gridx = 0; gbc.gridy = 1;
+                    paymentPanel.add(methodLabel, gbc);
 
-    // --- New Methods for New Functionalities ---
+                    gbc.gridx = 1;
+                    paymentPanel.add(methods, gbc);
 
-    private VBox createEnrollmentView() {
-        VBox enrollmentPane = new VBox(20);
-        enrollmentPane.setPadding(new Insets(20));
+                    gbc.gridx = 0; gbc.gridy = 2;
+                    paymentPanel.add(amountLabel, gbc);
 
-        // Request Form
-        TitledPane requestPane = new TitledPane("Send Enrollment Request", createRequestForm());
-        requestPane.setCollapsible(false);
+                    gbc.gridx = 1;
+                    paymentPanel.add(amountField, gbc);
 
-        // Pending Requests Table
-        TitledPane pendingPane = new TitledPane("Pending Requests", createPendingRequestsTable());
-        pendingPane.setCollapsible(false);
+                    gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
+                    paymentPanel.add(submitButton, gbc);
 
-        enrollmentPane.getChildren().addAll(requestPane, pendingPane);
-        return enrollmentPane;
-    }
+                    contentPanel.add(paymentPanel, BorderLayout.CENTER);
+                    break;
 
-    private VBox createRequestForm() {
-        VBox form = new VBox(10);
-        form.setPadding(new Insets(10));
+                case "Logout":
+                    int confirm = JOptionPane.showConfirmDialog(
+                            StudentGUI.this,
+                            "Are you sure you want to logout?",
+                            "Confirm Logout",
+                            JOptionPane.YES_NO_OPTION);
 
-        ComboBox<Course> dropCourse = new ComboBox<>();
-        dropCourse.setPromptText("Select Course to Drop");
-        dropCourse.setItems(currentStudent.getCourses());
-        dropCourse.setPrefWidth(200);
-
-        ComboBox<String> addCourse = new ComboBox<>();
-        addCourse.setPromptText("Select Course to Add");
-        addCourse.setItems(FXCollections.observableArrayList(
-                "CS201 - Data Structures",
-                "MATH301 - Linear Algebra",
-                "PHY201 - Electromagnetism"));
-        addCourse.setPrefWidth(200);
-
-        Button sendButton = new Button("Send Request");
-        sendButton.setStyle("-fx-base: #2ecc71;");
-
-        sendButton.setOnAction(e -> {
-            if (dropCourse.getValue() != null && addCourse.getValue() != null) {
-                pendingRequests.add(new EnrollmentRequest(
-                        dropCourse.getValue().getCode(),
-                        addCourse.getValue().split(" ")[0]));
-                dropCourse.getSelectionModel().clearSelection();
-                addCourse.getSelectionModel().clearSelection();
-                showAlert("Request Sent", "Your request has been sent to the receptionist.");
-            } else {
-                showAlert("Error", "Please select a course to drop and a course to add.");
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        dispose();
+                        new LoginWindow().setVisible(true);
+                    }
+                    return;
             }
-        });
 
-        form.getChildren().addAll(
-                new HBox(10, new Label("Drop:"), dropCourse),
-                new HBox(10, new Label("Add:"), addCourse),
-                sendButton
-        );
-        return form;
-    }
-
-    private VBox createPendingRequestsTable() {
-        TableView<EnrollmentRequest> table = new TableView<>();
-        table.setItems(pendingRequests);
-
-        TableColumn<EnrollmentRequest, String> dropCol = new TableColumn<>("Course to Drop");
-        dropCol.setCellValueFactory(new PropertyValueFactory<>("courseToDrop"));
-        dropCol.setPrefWidth(150);
-
-        TableColumn<EnrollmentRequest, String> addCol = new TableColumn<>("Course to Add");
-        addCol.setCellValueFactory(new PropertyValueFactory<>("courseToAdd"));
-        addCol.setPrefWidth(150);
-
-        TableColumn<EnrollmentRequest, String> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
-        statusCol.setPrefWidth(100);
-
-        TableColumn<EnrollmentRequest, Void> deleteCol = new TableColumn<>("Action");
-        deleteCol.setPrefWidth(80);
-        deleteCol.setCellFactory(param -> new TableCell<>() {
-            private final Button deleteButton = new Button("Delete");
-            {
-                deleteButton.setOnAction(event -> {
-                    EnrollmentRequest request = getTableView().getItems().get(getIndex());
-                    pendingRequests.remove(request);
-                    showAlert("Request Deleted", "The request has been deleted.");
-                });
-                deleteButton.setStyle("-fx-base: #e74c3c;");
-            }
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(deleteButton);
-                }
-            }
-        });
-
-        table.getColumns().addAll(dropCol, addCol, statusCol, deleteCol);
-
-        VBox tableContainer = new VBox(table);
-        tableContainer.setPadding(new Insets(10));
-        return tableContainer;
-    }
-
-    private VBox createPaymentsView() {
-        VBox paymentsPane = new VBox(20);
-        paymentsPane.setPadding(new Insets(20));
-
-        // Total Balance
-        double totalBalance = paymentHistory.stream()
-                .filter(p -> Objects.equals(p.status.get(), "Unpaid"))
-                .mapToDouble(p -> Double.parseDouble(p.amount.get().substring(1)))
-                .sum();
-        Label totalBalanceLabel = new Label("Total Balance Due: " + String.format("$%.2f", totalBalance));
-        totalBalanceLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-        totalBalanceLabel.setTextFill(totalBalance > 0 ? Color.RED : Color.web("#2ecc71"));
-
-        // Payments Table
-        TableView<Payment> table = new TableView<>();
-        table.setItems(paymentHistory);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        TableColumn<Payment, String> descCol = new TableColumn<>("Description");
-        descCol.setCellValueFactory(new PropertyValueFactory<>("description"));
-
-        TableColumn<Payment, String> amountCol = new TableColumn<>("Amount");
-        amountCol.setCellValueFactory(new PropertyValueFactory<>("amount"));
-        amountCol.setPrefWidth(100);
-
-        TableColumn<Payment, String> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
-        statusCol.setPrefWidth(100);
-
-        table.getColumns().addAll(descCol, amountCol, statusCol);
-
-        paymentsPane.getChildren().addAll(totalBalanceLabel, new Separator(), table);
-        return paymentsPane;
-    }
-
-    // Pass the TabPane to the createDashboard method
-    private VBox createDashboard(TabPane mainTabs) {
-        VBox dashboard = new VBox(20);
-        dashboard.setPadding(new Insets(20));
-
-        // Profile Section - Now editable
-        VBox profileBox = new VBox(15);
-        profileBox.setStyle("-fx-background-color: white; -fx-background-radius: 5; -fx-padding: 20;");
-
-        // Profile Header
-        HBox profileHeader = new HBox(10);
-        profileHeader.setAlignment(Pos.CENTER_LEFT);
-        ImageView avatar = new ImageView(new Image("https://placehold.co/100x100?text=" +
-                currentStudent.getName().charAt(0)));
-        avatar.setFitWidth(80);
-        avatar.setFitHeight(80);
-        Label profileTitle = new Label("Student Profile");
-        profileTitle.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-        profileHeader.getChildren().addAll(avatar, profileTitle);
-
-        // Profile Info - View Mode
-        VBox profileInfoView = new VBox(5);
-        profileInfoView.setId("profileInfoView");
-        profileInfoView.getChildren().addAll(
-                createInfoRow("Name:", currentStudent.getName()),
-                createInfoRow("ID:", currentStudent.getId()),
-                createInfoRow("Major:", currentStudent.getMajor())
-        );
-
-        // Profile Info - Edit Mode
-        VBox profileInfoEdit = new VBox(5);
-        profileInfoEdit.setId("profileInfoEdit");
-        profileInfoEdit.setVisible(false);
-        profileInfoEdit.setManaged(false);
-        TextField nameField = new TextField(currentStudent.getName());
-        TextField majorField = new TextField(currentStudent.getMajor());
-        profileInfoEdit.getChildren().addAll(
-                new HBox(5, new Label("Name:"), nameField),
-                new HBox(5, new Label("ID:"), new Label(currentStudent.getId())), // ID is not editable
-                new HBox(5, new Label("Major:"), majorField)
-        );
-
-        // Action Buttons
-        HBox profileButtons = new HBox(10);
-        Button editButton = new Button("Edit Profile");
-        Button saveButton = new Button("Save");
-        saveButton.setVisible(false);
-        saveButton.setManaged(false);
-
-        editButton.setOnAction(e -> {
-            profileInfoView.setVisible(false);
-            profileInfoView.setManaged(false);
-            profileInfoEdit.setVisible(true);
-            profileInfoEdit.setManaged(true);
-            editButton.setVisible(false);
-            editButton.setManaged(false);
-            saveButton.setVisible(true);
-            saveButton.setManaged(true);
-        });
-
-        saveButton.setOnAction(e -> {
-            currentStudent.nameProperty().set(nameField.getText());
-            currentStudent.majorProperty().set(majorField.getText());
-
-            profileInfoView.getChildren().setAll(
-                    createInfoRow("Name:", currentStudent.getName()),
-                    createInfoRow("ID:", currentStudent.getId()),
-                    createInfoRow("Major:", currentStudent.getMajor())
-            );
-
-            profileInfoView.setVisible(true);
-            profileInfoView.setManaged(true);
-            profileInfoEdit.setVisible(false);
-            profileInfoEdit.setManaged(false);
-            editButton.setVisible(true);
-            editButton.setManaged(true);
-            saveButton.setVisible(false);
-            saveButton.setManaged(false);
-            showAlert("Profile Updated", "Your profile has been successfully updated.");
-        });
-
-        profileButtons.getChildren().addAll(editButton, saveButton);
-        profileBox.getChildren().addAll(profileHeader, profileInfoView, profileInfoEdit, profileButtons);
-
-        // Quick Actions
-        HBox quickActions = new HBox(15);
-        quickActions.setAlignment(Pos.CENTER);
-
-        Button viewSchedule = new Button("View Schedule");
-        Button viewPayments = new Button("View Payments");
-
-        viewSchedule.setStyle("-fx-base: #2ecc71;");
-        viewPayments.setStyle("-fx-base: #3498db;");
-
-        // SETTING THE CORRECT ACTION HANDLERS
-        // This is the key fix. We use the 'mainTabs' object to select the correct tab by its index.
-        viewSchedule.setOnAction(e -> mainTabs.getSelectionModel().select(1)); // Schedule tab is at index 1
-        viewPayments.setOnAction(e -> mainTabs.getSelectionModel().select(4)); // Payments tab is at index 4
-
-        quickActions.getChildren().addAll(viewSchedule, viewPayments);
-
-        dashboard.getChildren().addAll(new TitledPane("My Profile", profileBox), new TitledPane("Quick Actions", quickActions));
-        return dashboard;
-    }
-
-    private BorderPane createScheduleView() {
-        BorderPane schedulePane = new BorderPane();
-
-        // Week Navigation
-        HBox weekNav = new HBox(10);
-        weekNav.setPadding(new Insets(10));
-        weekNav.setStyle("-fx-background-color: white; -fx-background-radius: 5;");
-
-        Button prevWeek = new Button("Previous Week");
-        Button nextWeek = new Button("Next Week");
-        Label weekLabel = new Label("Week of Sept 18, 2023");
-        weekLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        weekNav.getChildren().addAll(prevWeek, spacer, weekLabel, nextWeek);
-        schedulePane.setTop(weekNav);
-
-        // Schedule Grid
-        GridPane scheduleGrid = new GridPane();
-        scheduleGrid.setHgap(10);
-        scheduleGrid.setVgap(10);
-        scheduleGrid.setPadding(new Insets(15));
-
-        // Column Headers
-        String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
-        for (int i = 0; i < days.length; i++) {
-            Label dayLabel = new Label(days[i]);
-            dayLabel.setStyle("-fx-font-weight: bold;");
-            scheduleGrid.add(dayLabel, i+1, 0);
+            contentPanel.revalidate();
+            contentPanel.repaint();
         }
-
-        // Time Slots and dynamic class population
-        String[] times = {"8:00 AM", "10:00 AM", "12:00 PM", "2:00 PM", "4:00 PM"};
-        Random rand = new Random();
-        for (int i = 0; i < times.length; i++) {
-            scheduleGrid.add(new Label(times[i]), 0, i+1);
-
-            for (int j = 0; j < days.length; j++) {
-                if (rand.nextDouble() > 0.6) { // Randomly populate some classes
-                    Course course = currentStudent.getCourses().get(rand.nextInt(currentStudent.getCourses().size()));
-                    Label classLabel = new Label(course.getCode() + "\nRoom " + (100 + rand.nextInt(100)));
-                    classLabel.setStyle("-fx-background-color: #e3f2fd; -fx-background-radius: 5; -fx-padding: 5;");
-                    scheduleGrid.add(classLabel, j+1, i+1);
-                }
-            }
-        }
-
-        schedulePane.setCenter(new ScrollPane(scheduleGrid));
-        return schedulePane;
-    }
-
-    private BorderPane createGradesView() {
-        BorderPane gradesPane = new BorderPane();
-
-        // Create table
-        TableView<Course> table = new TableView<>();
-        table.setItems(currentStudent.getCourses());
-
-        TableColumn<Course, String> codeCol = new TableColumn<>("Course Code");
-        codeCol.setCellValueFactory(cellData -> cellData.getValue().codeProperty());
-
-        TableColumn<Course, String> nameCol = new TableColumn<>("Course Name");
-        nameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-
-        TableColumn<Course, String> gradeCol = new TableColumn<>("Grade");
-        gradeCol.setCellValueFactory(cellData -> {
-            // Assign random grades for demo
-            String[] grades = {"A", "A-", "B+", "B", "B-", "C+", "C"};
-            return new SimpleStringProperty(grades[new Random().nextInt(grades.length)]);
-        });
-
-        table.getColumns().addAll(codeCol, nameCol, gradeCol);
-
-        // GPA Summary
-        Label gpaLabel = new Label("Current GPA: 3.42");
-        gpaLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
-        HBox summaryBox = new HBox(gpaLabel);
-        summaryBox.setPadding(new Insets(10));
-
-        gradesPane.setTop(summaryBox);
-        gradesPane.setCenter(table);
-        return gradesPane;
-    }
-
-    // Helper Methods
-    private HBox createInfoRow(String label, String value) {
-        HBox row = new HBox(5);
-        Label lbl = new Label(label);
-        lbl.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        row.getChildren().addAll(lbl, new Label(value));
-        return row;
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
